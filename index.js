@@ -48,6 +48,9 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Routes
+app.use(express.static('frontend/dist'))
+app.use(express.static('frontend/public'))
+
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/verification', verificationRouter);
@@ -55,21 +58,6 @@ app.use('/api/v1/verification', verificationRouter);
 app.use('/api/v1/job', jobRoutes);
 
 // payment///////////////////////////////////////////////////////////
-async function main(payment){
-  // const payment = {
-  //     amount: 500, //fapshi
-  //     email: 'cletusberinyuy@email.com',
-  //     externalId: '12345',
-  //     userId: 'abcde',
-  //     // redirectUrl: 'https://mywebsite.com',
-  //     message: 'Eventix event ticket',
-  // }
-  const resp = await initiatePay(payment)
-  // const resp = await fapshi.paymentStatus('lyhXMC9h')
-  // const resp = await fapshi.expirePay('lyhXMC9h')
-  console.log(resp)
-  return resp
-}
 app.post('/api/v1/payment_status',async (req, res) => {
   console.log(req.body)
   let resp=await paymentStatus(req.body.paymentId)
@@ -83,7 +71,9 @@ app.post('/api/v1/initiate-pay',async (req, res) => {
   res.json(resp);
   // res.json({message:'Post success'})
 });
-
+app.use('*',(req,res)=>{
+  res.sendFile('index.html',{root:'./frontend/dist'})
+})
  
 // Health Check
 app.get('/', (req, res) => {
