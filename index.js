@@ -6,6 +6,8 @@ import bodyParser from 'body-parser';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { createRequire } from 'module';
+import cors from 'cors'
+import {initiatePay,paymentStatus} from './controller/payment.js'
 
 // Routes
 import authRouter from './routes/auth.route.js';
@@ -38,6 +40,9 @@ uploadDirs.forEach(dir => {
 });
 
 // Middleware
+app.use(cors({
+  origin:'http://localhost:5173' //make sure to change when hosting
+}))
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
@@ -49,6 +54,35 @@ app.use('/api/v1/verification', verificationRouter);
 
 app.use('/api/v1/job', jobRoutes);
 
+// payment///////////////////////////////////////////////////////////
+async function main(payment){
+  // const payment = {
+  //     amount: 500, //fapshi
+  //     email: 'cletusberinyuy@email.com',
+  //     externalId: '12345',
+  //     userId: 'abcde',
+  //     // redirectUrl: 'https://mywebsite.com',
+  //     message: 'Eventix event ticket',
+  // }
+  const resp = await initiatePay(payment)
+  // const resp = await fapshi.paymentStatus('lyhXMC9h')
+  // const resp = await fapshi.expirePay('lyhXMC9h')
+  console.log(resp)
+  return resp
+}
+app.post('/api/v1/payment_status',async (req, res) => {
+  console.log(req.body)
+  let resp=await paymentStatus(req.body.paymentId)
+  res.json(resp);
+});
+app.post('/api/v1/initiate-pay',async (req, res) => {
+  console.log(req.body)
+  const payment = {...req.body}
+  console.log(payment.amount)
+  let resp=await initiatePay(payment)
+  res.json(resp);
+  // res.json({message:'Post success'})
+});
 
  
 // Health Check

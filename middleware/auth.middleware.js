@@ -75,6 +75,7 @@ export const checkVerified = (req, res, next) => {
 
 
 export const protect = (req, res, next) => {
+  console.log(req.body)
   const token = req.header('Authorization')?.replace('Bearer ', '');
 
   if (!token) {
